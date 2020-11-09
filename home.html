@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Token Validator</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://momentjs.com/downloads/moment-with-locales.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <br>
+        <h2>Validate JWT Token</h2>
+        <form>
+            <div class="form-group">
+                <label for="token">Token:</label>
+                <textarea rows="13" class="form-control" id="token" placeholder="Token" name="token"></textarea>
+            </div>
+            <div class="form-group" id="haveToken">
+                <h3>Expires On : <span style="color:brown;" id="expiredDate"></span></h3>
+            </div>
+
+            <div class="form-group" id="haveTokenData">
+                <label for="token">Other Info:</label>
+                <textarea rows="13" class="form-control" id="otherDatas"></textarea>
+            </div>
+
+            <button type="button" id="btn" class="btn btn-primary">Submit</button>
+            <button type="button" id="removeBtn" class="btn btn-danger">Clear</button>
+        </form>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $(`#btn`).show();
+            $(`#removeBtn`).hide();
+            $(`#haveToken`).hide();
+            $(`#haveTokenData`).hide();
+            $(`#btn`).on('click', function (e) {
+                // e.preventdefault();
+
+                let token = $(`#token`).val();
+
+                if (token) {
+                    var base64Url1 = token.split('.')[1];
+                    var base641 = base64Url1.replace(/-/g, '+').replace(/_/g, '/');
+                    var jsonPayload1 = decodeURIComponent(atob(base641).split('').map(function (c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    let decoded = JSON.parse(jsonPayload1);
+                    // console.log(decoded)
+                    let date = moment.unix(decoded.exp).format('MMMM Do YYYY, h:mm:ss a');
+                    // console.log(date)
+                    $(`#expiredDate`).text(date);
+                    $(`#otherDatas`).val(JSON.stringify(decoded.data));
+                    $(`#haveToken`).show();
+                    $(`#haveTokenData`).show();
+                    $(`#btn`).hide();
+                    $(`#removeBtn`).show();
+
+                }
+            });
+
+            $(`#removeBtn`).on('click', function () {
+                $(`#btn`).show();
+                $(`#removeBtn`).hide();
+                $(`#haveToken`).hide();
+                $(`#haveTokenData`).hide();
+                $(`#token`).val('');
+            });
+
+        });
+    </script>
+</body>
+
+</html>
